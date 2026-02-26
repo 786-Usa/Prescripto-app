@@ -1,9 +1,13 @@
 import React from 'react'
+import { useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { doctors } from '../assets/assets_frontend/assets.js'
+import { AppContext } from '../context/AppContext.jsx'
+// import { doctors } from '../assets/assets_frontend/assets.js'
 
 const TopDoctors = () => {
+    const {doctors} = useContext(AppContext)
     const visibleDoctors = doctors.slice(0, 10)
+
 
     return (
         <div className='py-16'>
@@ -13,7 +17,7 @@ const TopDoctors = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-8'>
                 {visibleDoctors.map((doc) => (
                     <Link
-                        to={`/appointment/${doc._id}`}
+                        to={`/appointments/${doc._id}`}
                         key={doc._id}
                         className='block bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition'
                     >

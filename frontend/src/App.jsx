@@ -9,6 +9,7 @@ import MyProfile from './pages/MyProfile'
 import MyAppointments from './pages/MyAppointments'
 import Appointment from './pages/Appointment'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 function App() {
 
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/appointment/:docId" element={<Appointment />} />
 
       </Routes>
+      <Footer/>
 
     </div>
     </>
