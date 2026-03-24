@@ -1,30 +1,27 @@
+// backend/middlewares/authDoctor.js
 import jwt from "jsonwebtoken";
 
-const authAdmin = (req, res, next) => {
+const authDoctor = (req, res, next) => {
     try {
         const token = req.headers.authorization?.split(" ")[1];
+        
         if (!token) {
             return res.status(401).json({ 
                 success: false,
                 message: "Access denied. No token provided." 
             });
         }
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded.email !== process.env.ADMIN_EMAIL || decoded.password !== process.env.ADMIN_PASSWORD) {
-            return res.status(403).json({ 
-                success: false,
-                message: "Access denied. Not an admin." 
-            });
-        }
-        req.user = decoded;
+        req.user = decoded;  // Contains { id: doctor._id }
         next();
     } catch (error) {
-        console.error('Auth error:', error);
-        res.status(401).json({
+        console.error(error);
+        return res.status(403).json({
             success: false,
             message: "Invalid or expired token"
         });
     }
-}
+};
 
-export default authAdmin;
+export default authDoctor;

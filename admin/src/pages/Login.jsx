@@ -16,6 +16,7 @@ const Login = () => {
         if (data.success) {
           localStorage.setItem('aToken', data.token)
           setAToken(data.token)
+          toast.success('Login successful')
         }
         else{
           toast.error(data.message)
@@ -23,7 +24,8 @@ const Login = () => {
       }
 
     } catch (error) {
-
+      toast.error(error.response?.data?.message || "An error occurred during login");
+      console.error('Login error:', error);
     }
   }
   return (

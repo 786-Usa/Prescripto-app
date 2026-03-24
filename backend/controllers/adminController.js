@@ -81,7 +81,8 @@ const addDoctor = async (req, res) => {
 
         res.json({
             success: true,
-            message: "Doctor added successfully"
+            message: "Doctor added successfully",
+            doctor: newDoctor
         });
 
     } catch (error) {
@@ -97,7 +98,7 @@ const loginAdmin = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+            const token = jwt.sign({ email, password }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
             res.json({
                 success: true,

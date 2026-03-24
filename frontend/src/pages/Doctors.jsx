@@ -14,7 +14,7 @@ const Doctors = () => {
     } else {
       setFilter(doctors)
     }
-  }
+  } 
 
   useEffect(() => {
     applyFilter()
@@ -72,7 +72,10 @@ const Doctors = () => {
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-green-500 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                    {/* //how to take data of available from doctor model and show here? */}
+                    {doc.available && (
+                      <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                    )}
                     Available
                   </span>
                 </div>

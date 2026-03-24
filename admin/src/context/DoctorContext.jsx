@@ -7,6 +7,7 @@ const DoctorProvider = ({children}) => {
     const value = {
         doctor: null,
     }
+    
     return (
         <DoctorContext.Provider value={value}>
             {children}
