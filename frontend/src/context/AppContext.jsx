@@ -23,6 +23,7 @@ const AppProvider = (Pros) => {
     }
   };
 
+
   useEffect(() => {
     getDoctorsData();
   }, []);
