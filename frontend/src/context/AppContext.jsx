@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 export const AppContext = createContext();
 const AppProvider = (Pros) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [token, setToken] = useState(localStorage.getItem("token")? localStorage.getItem("token") : false);
     
   const [doctors, setDoctors] = useState([]);
 
@@ -30,7 +31,9 @@ const AppProvider = (Pros) => {
 
   const data = {
     doctors,
-    getDoctorsData,
+    token,
+    setToken,
+    backendUrl
   };
   return (
     <AppContext.Provider value={data}>{Pros.children}</AppContext.Provider>
