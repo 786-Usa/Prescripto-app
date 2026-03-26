@@ -66,6 +66,7 @@ const AppProvider = (Pros) => {
     userData,
     setUserData,
     getUserProfileData,
+    getDoctorsData
   };
   return (
     <AppContext.Provider value={data}>{Pros.children}</AppContext.Provider>

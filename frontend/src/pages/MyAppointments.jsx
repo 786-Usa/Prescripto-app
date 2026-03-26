@@ -1,119 +1,187 @@
-import React, { useContext, useState } from 'react'
-import { AppContext } from '../context/AppContext'
+import React, { useContext, useState } from "react";
+import { AppContext } from "../context/AppContext";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const MyAppointments = () => {
-  const { doctors } = useContext(AppContext)
-  const [appointments, setAppointments] = useState([
-    {
-      _id: 'apt1',
-      docId: 'doc1',
-      date: '20 Jan, 2024',
-      time: '8:30 PM',
-      isPaid: false
-    },
-    {
-      _id: 'apt2',
-      docId: 'doc1',
-      date: '25 Jan, 2024',
-      time: '8:30 PM',
-      isPaid: true
-    },
-    {
-      _id: 'apt3',
-      docId: 'doc1',
-      date: '26 Jan, 2024',
-      time: '8:30 PM',
-      isPaid: false
+  const { backendUrl, token } = useContext(AppContext);
+  const [appointments, setAppointments] = useState([]);
+
+  const getUserAppointment = async () => {
+    try {
+      const { data } = await axios.get(
+        `${backendUrl}/api/user/my-appointments`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (data.success) {
+        setAppointments(data.appointments.reverse());
+        console.log(data.appointments);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error fetching appointments");
     }
-  ])
+  };
+
+
+  const cancelAppointment = async (aptId) => {
+    try {
+      const { data } = await axios.post(
+        `${backendUrl}/api/user/cancel-appointment`,
+        { aptId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getUserAppointment();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error cancelling appointment");
+    }
+  };
+  useEffect(() => {
+    if (token) {
+      getUserAppointment();
+    }
+  }, [token]);
 
   const handleCancelAppointment = (aptId) => {
-    setAppointments(prev => prev.filter(apt => apt._id !== aptId))
-  }
+    setAppointments((prev) => prev.filter((apt) => apt._id !== aptId));
+    cancelAppointment(aptId);
+  };
 
   const handlePayment = (aptId) => {
-    setAppointments(prev =>
-      prev.map(apt =>
-        apt._id === aptId ? { ...apt, isPaid: true } : apt
-      )
-    )
-  }
+    setAppointments((prev) =>
+      prev.map((apt) => (apt._id === aptId ? { ...apt, isPaid: true } : apt)),
+    );
+  };
 
   return (
     <div className="py-12 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-8">My Appointments</h1>
 
-      {appointments.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No appointments booked yet.</p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {appointments.map((apt) => {
-            const doc = doctors.find(d => d._id === apt.docId)
-            if (!doc) return null
+      {appointments.map((apt) => {
+        const doc = apt.docData;
 
-            return (
-              <div key={apt._id} className="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row gap-6">
-                {/* Doctor Image */}
-                <div className="flex-shrink-0">
-                  <img
-                    src={doc.image}
-                    alt={doc.name}
-                    className="h-32 w-32 rounded-lg object-cover bg-indigo-50 p-4"
-                  />
+        const status = apt.cancelled
+          ? "Cancelled"
+          : apt.isCompleted
+            ? "Completed"
+            : apt.payment === "paid"
+              ? "Paid"
+              : "Pending";
+
+        const statusColor =
+          status === "Cancelled"
+            ? "bg-red-100 text-red-600"
+            : status === "Completed"
+              ? "bg-green-100 text-green-600"
+              : status === "Paid"
+                ? "bg-indigo-100 text-indigo-600"
+                : "bg-yellow-100 text-yellow-600";
+
+        return (
+          <div
+            key={apt._id}
+            className="bg-white rounded-2xl shadow-md hover:shadow-lg transition p-5 flex flex-col md:flex-row gap-5 border border-gray-100"
+          >
+            {/* Doctor Image */}
+            <div className="flex-shrink-0">
+              <img
+                src={doc.image}
+                alt={doc.name}
+                className="w-24 h-24 rounded-xl object-cover"
+              />
+            </div>
+
+            {/* Info Section */}
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {doc.name}
+                  </h2>
+                  <p className="text-indigo-600 text-sm">{doc.speciality}</p>
                 </div>
 
-                {/* Appointment Details */}
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2">{doc.name}</h2>
-                  <p className="text-gray-600 mb-3">{doc.speciality}</p>
-
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <p>
-                      <span className="font-semibold">Address:</span>
-                      <br />
-                      {doc.address.line1}
-                      <br />
-                      {doc.address.line2}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Date & Time:</span> {apt.date} | {apt.time}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col gap-3 md:w-32">
-                  {apt.isPaid ? (
-                    <button
-                      disabled
-                      className="px-4 py-2 bg-indigo-600 text-white rounded font-medium"
-                    >
-                      Paid
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handlePayment(apt._id)}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-medium transition"
-                    >
-                      Pay here
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleCancelAppointment(apt._id)}
-                    className="px-4 py-2 border border-gray-400 text-gray-700 rounded hover:bg-gray-50 font-medium transition"
-                  >
-                    Cancel appointment
-                  </button>
-                </div>
+                {/* Status Badge */}
+                <span
+                  className={`px-3 py-1 text-xs rounded-full ${statusColor}`}
+                >
+                  {status}
+                </span>
               </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
 
-export default MyAppointments
+              {/* Date & Time */}
+              <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
+                <span className="flex items-center gap-1">
+                  📅 {apt.slotDate}
+                </span>
+                <span className="flex items-center gap-1">
+                  ⏰ {apt.slotTime}
+                </span>
+              </div>
+
+              {/* Address */}
+              <p className="mt-2 text-sm text-gray-500">
+                📍 {doc.address?.line1}, {doc.address?.line2}
+              </p>
+
+              {/* Fee */}
+              <p className="mt-1 text-sm font-medium text-gray-700">
+                💰 ${apt.amount}
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col justify-between gap-2 md:w-40">
+              {/* Payment */}
+              {apt.payment === "paid" ? (
+                <button className="bg-green-500 text-white py-2 rounded-lg text-sm">
+                  Paid ✔
+                </button>
+              ) : !apt.cancelled ? (
+                <button
+                  onClick={() => handlePayment(apt._id)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition"
+                >
+                  Pay Now
+                </button>
+              ) : null}
+
+              {/* Cancel */}
+              {!apt.cancelled && !apt.isCompleted && (
+                <button
+                  onClick={() => handleCancelAppointment(apt._id)}
+                  className="border border-gray-300 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+              )}
+
+              {/* Completed */}
+              {apt.isCompleted && (
+                <span className="text-green-600 text-sm text-center font-medium">
+                  Completed ✔
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default MyAppointments;
