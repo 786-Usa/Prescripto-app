@@ -2,6 +2,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import { v2 as cloudinary } from 'cloudinary';
 
 const registerUser = async (req, res) => {
   try {
@@ -126,5 +127,77 @@ const loginUser = async (req, res) => {
     }
 };
 
+const getUserProfile = async (req, res) => {
 
-export { registerUser, loginUser };
+  try {
+    const userId = req.userId; // Assuming you have middleware to set req.userId
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    res.status(200).json({
+      success: true,
+      user
+    });
+    
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+
+}
+
+const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name, dob, gender, address, phone } = req.body;
+
+    if (!name || !dob || !gender || !address || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required"
+      });
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      name,
+      dob,
+      gender,
+      address: typeof address === "string" ? JSON.parse(address) : address,
+      phone
+    });
+
+    const imageFile = req.file;
+
+    if (imageFile) {
+      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+        resource_type: "image",
+      });
+
+      const imageUrl = imageUpload.secure_url;
+
+      await User.findByIdAndUpdate(userId, {
+        image: imageUrl
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully"
+    });
+
+  } catch (error) {
+    console.log(error); // 🔥 VERY IMPORTANT
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export { registerUser, loginUser, getUserProfile, updateUserProfile };
