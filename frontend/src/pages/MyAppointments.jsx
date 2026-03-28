@@ -7,6 +7,7 @@ import axios from "axios";
 const MyAppointments = () => {
   const { backendUrl, token } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
+  const [loadingId, setLoadingId] = useState(null);
 
   const getUserAppointment = async () => {
     try {
@@ -28,7 +29,6 @@ const MyAppointments = () => {
       toast.error("Error fetching appointments");
     }
   };
-
 
   const cancelAppointment = async (aptId) => {
     try {
@@ -61,12 +61,30 @@ const MyAppointments = () => {
     cancelAppointment(aptId);
   };
 
-  const handlePayment = (aptId) => {
-    setAppointments((prev) =>
-      prev.map((apt) => (apt._id === aptId ? { ...apt, isPaid: true } : apt)),
-    );
-  };
+  const handlePayment = async (aptId) => {
+    try {
+      setLoadingId(aptId);
+      const { data } = await axios.post(
+        `${backendUrl}/api/user/make-payment`,
+        { aptId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
+      if (data.success) {
+        toast.success(data.message);
+        window.location.href = data.url; // 🔥 redirect to Stripe
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Payment failed");
+    }
+  };
   return (
     <div className="py-12 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-8">My Appointments</h1>
@@ -148,15 +166,19 @@ const MyAppointments = () => {
             <div className="flex flex-col justify-between gap-2 md:w-40">
               {/* Payment */}
               {apt.payment === "paid" ? (
-                <button className="bg-green-500 text-white py-2 rounded-lg text-sm">
+                <button
+                  disabled
+                  className="bg-green-500 text-white py-2 rounded-lg text-sm opacity-70 cursor-not-allowed"
+                >
                   Paid ✔
                 </button>
               ) : !apt.cancelled ? (
                 <button
                   onClick={() => handlePayment(apt._id)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition"
+                  disabled={loadingId === apt._id}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition disabled:opacity-50"
                 >
-                  Pay Now
+                  {loadingId === apt._id ? "Processing..." : "Pay Now"}
                 </button>
               ) : null}
 

@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
 import Doctors from "./pages/Doctors";
 import Contact from "./pages/Contact";
@@ -13,6 +13,7 @@ import Appointment from "./pages/Appointment";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Signup from "./pages/Signup";
+import PaymentSuccess from "./pages/PaymentSuccess";
 function App() {
   return (
     <>
@@ -34,6 +35,7 @@ function App() {
           <Route path="/my-appointments" element={<MyAppointments />} />
           {/* changed to plural to match links */}
           <Route path="/appointments/:docId" element={<Appointment />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />{" "}
         </Routes>
         <Footer />
       </div>
