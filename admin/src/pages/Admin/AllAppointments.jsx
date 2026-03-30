@@ -1,107 +1,225 @@
-import React, { useState } from 'react'
-// import { assets } from '../../assets/assets_admin/assets.js'
+import React, { useState, useEffect, useContext, useMemo } from "react";
+import { AdminContext } from "../../context/AdminContext";
+import { AppContext } from "../../context/AppContext";
 
 const AllAppointments = () => {
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      patient: 'Richard James',
-      patientImage: 'https://via.placeholder.com/40?text=RJ',
-      department: 'Richard James',
-      age: 28,
-      dateTime: '26th July, 2024, 10:AM',
-      doctor: 'Dr. Richard James',
-      doctorImage: 'https://via.placeholder.com/40?text=Dr',
-      fees: '$50'
-    },
-    {
-      id: 2,
-      patient: 'Richard James',
-      patientImage: 'https://via.placeholder.com/40?text=RJ',
-      department: 'Richard James',
-      age: 28,
-      dateTime: '26th July, 2024, 10:AM',
-      doctor: 'Dr. Richard James',
-      doctorImage: 'https://via.placeholder.com/40?text=Dr',
-      fees: '$50'
-    },
-  ])
+  const {
+    appointments,
+    cancelAppointment,
+    getAllAppointments,
+    aToken,
+  } = useContext(AdminContext);
 
-  const handleCancelAppointment = (id) => {
-    setAppointments(appointments.filter(apt => apt.id !== id))
-  }
+  const { calculateAge } = useContext(AppContext);
+
+  const [selectedId, setSelectedId] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loadingId, setLoadingId] = useState(null);
+
+  const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (aToken) {
+      getAllAppointments();
+    }
+  }, [aToken]);
+
+  const getStatus = (apt) => {
+    if (apt.cancelled) return "Cancelled";
+    if (apt.isCompleted) return "Completed";
+    if (apt.payment === "paid") return "Paid";
+    return "Pending";
+  };
+
+  const filteredAppointments = useMemo(() => {
+    return appointments.filter((apt) => {
+      const status = getStatus(apt);
+
+      const matchesFilter =
+        filter === "All" ? true : status === filter;
+
+      const matchesSearch =
+        apt.userData.name.toLowerCase().includes(search.toLowerCase()) ||
+        apt.docData.name.toLowerCase().includes(search.toLowerCase());
+
+      return matchesFilter && matchesSearch;
+    });
+  }, [appointments, filter, search]);
+
+  const openCancelModal = (id) => {
+    setSelectedId(id);
+    setShowModal(true);
+  };
+
+  const confirmCancel = async () => {
+    setLoadingId(selectedId);
+    await cancelAppointment(selectedId);
+    setShowModal(false);
+    setSelectedId(null);
+    setLoadingId(null);
+  };
+
+  const statusColor = (status) => {
+    switch (status) {
+      case "Cancelled":
+        return "bg-red-100 text-red-600";
+      case "Completed":
+        return "bg-green-100 text-green-600";
+      case "Paid":
+        return "bg-indigo-100 text-indigo-600";
+      default:
+        return "bg-yellow-100 text-yellow-600";
+    }
+  };
 
   return (
-    <div className='m-5'>
-      <h1 className='text-2xl font-semibold mb-6'>All Appointments</h1>
+    <div className="m-5">
+      {/* HEADER */}
+      <h1 className="text-2xl font-semibold mb-6">
+        All Appointments
+      </h1>
 
-      <div className='bg-white border border-gray-200 rounded-lg overflow-hidden'>
-        <div className='overflow-x-auto'>
-          <table className='w-full'>
-            {/* Table Header */}
-            <thead className='border-b border-gray-200 bg-gray-50'>
+      {/* FILTER + SEARCH */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        {/* Filters */}
+        <div className="flex gap-2 flex-wrap">
+          {["All", "Paid", "Pending", "Cancelled", "Completed"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-4 py-1 rounded-full text-sm ${
+                filter === f
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search patient or doctor..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 px-4 py-2 rounded-lg w-full md:w-64 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      {/* TABLE */}
+      <div className="bg-white border-none rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-none-b">
               <tr>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-700'>#</th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-700'>Patient</th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-700'>Department</th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-700'>Age</th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-700'>Date & Time</th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-700'>Doctor</th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-700'>Fees</th>
-                <th className='px-4 py-3 text-center text-sm font-semibold text-gray-700'>Action</th>
+                <th className="px-4 py-3 text-sm text-left">#</th>
+                <th className="px-4 py-3 text-sm text-left">Patient</th>
+                <th className="px-4 py-3 text-sm text-left">Department</th>
+                <th className="px-4 py-3 text-sm text-left">Age</th>
+                <th className="px-4 py-3 text-sm text-left">Date & Time</th>
+                <th className="px-4 py-3 text-sm text-left">Doctor</th>
+                <th className="px-4 py-3 text-sm text-left">Fees</th>
+                <th className="px-4 py-3 text-sm text-center">Status</th>
+                <th className="px-4 py-3 text-sm text-center">Action</th>
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody>
-              {appointments.length > 0 ? (
-                appointments.map((appointment, index) => (
-                  <tr key={appointment.id} className='border-b border-gray-200 hover:bg-gray-50 transition-all'>
-                    {/* # */}
-                    <td className='px-4 py-3 text-sm text-gray-700'>{index + 1}</td>
+              {filteredAppointments.length > 0 ? (
+                filteredAppointments.map((apt, index) => {
+                  const status = getStatus(apt);
 
-                    {/* Patient */}
-                    <td className='px-4 py-3 text-sm'>
-                      <div className='flex items-center gap-3'>
-                        <img src={appointment.patientImage} alt={appointment.patient} className='w-8 h-8 rounded-full' />
-                        <span className='text-gray-700'>{appointment.patient}</span>
-                      </div>
-                    </td>
+                  return (
+                    <tr
+                      key={apt._id}
+                      className={`border-none-b hover:bg-gray-50 ${
+                        apt.cancelled ? "opacity-50" : ""
+                      }`}
+                    >
+                      <td className="px-4 py-3 text-sm">
+                        {index + 1}
+                      </td>
 
-                    {/* Department */}
-                    <td className='px-4 py-3 text-sm text-gray-700'>{appointment.department}</td>
+                      {/* Patient */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={apt.userData.image}
+                            className="w-8 h-8 rounded-full"
+                          />
+                          <span>{apt.userData.name}</span>
+                        </div>
+                      </td>
 
-                    {/* Age */}
-                    <td className='px-4 py-3 text-sm text-gray-700'>{appointment.age}</td>
+                      {/* Department */}
+                      <td className="px-4 py-3">
+                        {apt.docData.speciality}
+                      </td>
 
-                    {/* Date & Time */}
-                    <td className='px-4 py-3 text-sm text-gray-700'>{appointment.dateTime}</td>
+                      {/* Age */}
+                      <td className="px-4 py-3">
+                        {calculateAge(apt.userData.dob)}
+                      </td>
 
-                    {/* Doctor */}
-                    <td className='px-4 py-3 text-sm'>
-                      <div className='flex items-center gap-3'>
-                        <img src={appointment.doctorImage} alt={appointment.doctor} className='w-8 h-8 rounded-full' />
-                        <span className='text-gray-700'>{appointment.doctor}</span>
-                      </div>
-                    </td>
+                      {/* Date */}
+                      <td className="px-4 py-3">
+                        {apt.slotDate} | {apt.slotTime}
+                      </td>
 
-                    {/* Fees */}
-                    <td className='px-4 py-3 text-sm text-gray-700'>{appointment.fees}</td>
+                      {/* Doctor */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={apt.docData.image}
+                            className="w-8 h-8 rounded-full"
+                          />
+                          <span>{apt.docData.name}</span>
+                        </div>
+                      </td>
 
-                    {/* Action */}
-                    <td className='px-4 py-3 text-center'>
-                      <button 
-                        onClick={() => handleCancelAppointment(appointment.id)}
-                        className='text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-all'
-                      >
-                        ✕
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      {/* Fees */}
+                      <td className="px-4 py-3">
+                        ${apt.amount}
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-4 py-3 text-center">
+                        <span
+                          className={`px-3 py-1 text-xs rounded-full ${statusColor(
+                            status
+                          )}`}
+                        >
+                          {status}
+                        </span>
+                      </td>
+
+                      {/* Action */}
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          disabled={
+                            apt.cancelled ||
+                            apt.isCompleted ||
+                            apt.payment === "paid"
+                          }
+                          onClick={() => openCancelModal(apt._id)}
+                          className={`px-2 py-1 rounded ${
+                            apt.cancelled || apt.payment === "paid"
+                              ? "text-gray-400 cursor-not-allowed"
+                              : "text-red-500 hover:bg-red-50"
+                          }`}
+                        >
+                          {loadingId === apt._id ? "..." : "Cancel"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="8" className='px-4 py-8 text-center text-gray-500'>
+                  <td colSpan="9" className="text-center py-6 text-gray-500">
                     No appointments found
                   </td>
                 </tr>
@@ -110,8 +228,37 @@ const AllAppointments = () => {
           </table>
         </div>
       </div>
-    </div>
-  )
-}
 
-export default AllAppointments
+      {/* MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-80">
+            <h2 className="text-lg font-semibold mb-3">
+              Cancel Appointment?
+            </h2>
+            <p className="text-sm text-gray-500 mb-5">
+              This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-100 rounded"
+              >
+                No
+              </button>
+              <button
+                onClick={confirmCancel}
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Yes, Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AllAppointments;

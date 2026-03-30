@@ -1,8 +1,9 @@
 import Doctor from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import Appointment from "../models/appointmentModel.js";
 
-export const doctorLogin = async (req, res) => {
+ const doctorLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -51,7 +52,7 @@ export const doctorLogin = async (req, res) => {
 };
 
 // ✅ NEW - Get all doctors (for frontend & admin)
-export const getAllDoctors = async (req, res) => {
+ const getAllDoctors = async (req, res) => {
   try {
     const doctors = await Doctor.find({}).select("-password -email");
     
@@ -68,7 +69,7 @@ export const getAllDoctors = async (req, res) => {
 };
 
 // ✅ FIXED - Use req.user.id from auth middleware
-export const getDoctorProfile = async (req, res) => {
+ const getDoctorProfile = async (req, res) => {
   try {
     const doctorId = req.user.id;  // From authDoctor middleware
 
@@ -93,7 +94,7 @@ export const getDoctorProfile = async (req, res) => {
 };
 
 // ✅ FIXED - Use req.user.id from auth middleware
-export const updateDoctorAvailability = async (req, res) => {
+ const updateDoctorAvailability = async (req, res) => {
   try {
     const doctorId = req.user.id;  // From authDoctor middleware
     const { available } = req.body;
@@ -117,27 +118,74 @@ export const updateDoctorAvailability = async (req, res) => {
   }
 };
 
-// ✅ FIXED - Use req.user.id from auth middleware
-export const getDoctorAppointments = async (req, res) => {
-  try {
-    const doctorId = req.user.id;  // From authDoctor middleware
+//  Use req.user.id from auth middleware
+//  const getDoctorAppointments = async (req, res) => {
+//   try {
+//     const doctorId = req.user.id;
 
-    const doctor = await Doctor.findById(doctorId);
-    if (!doctor) {
-      return res.status(404).json({
-        success: false,
-        message: "Doctor not found"
-      });
-    }
+//     const doctor = await Doctor.findById(doctorId);
+
+//     if (!doctor) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Doctor not found",
+//       });
+//     }
+
+//     const slots = doctor.slots_booked || {};
+
+//     let appointments = [];
+
+//     for (const date in slots) {
+//       for (const time in slots[date]) {
+//         const appointment = slots[date][time];
+
+//         appointments.push({
+//           ...appointment,
+//           slotDate: date,
+//           slotTime: time,
+//         });
+//       }
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       appointments, 
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+
+const getDoctorAppointments = async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+
+    const appointments = await Appointment.find({ docId: doctorId });
 
     res.status(200).json({
       success: true,
-      appointments: doctor.slots_booked
+      appointments, // ✅ ARRAY
     });
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: "Error fetching appointments",
     });
   }
+};
+
+export {
+  doctorLogin,
+  getDoctorProfile,
+  updateDoctorAvailability,
+  getDoctorAppointments,
+  getAllDoctors
 };

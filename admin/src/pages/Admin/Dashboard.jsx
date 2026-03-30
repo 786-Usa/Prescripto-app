@@ -1,87 +1,162 @@
-import React, { useContext } from 'react'
-import { AdminContext } from '../../context/AdminContext'
-import { assets } from '../../assets/assets_admin/assets'
+import React, { useContext, useEffect, useMemo } from "react";
+import { AdminContext } from "../../context/AdminContext";
+import { assets } from "../../assets/assets_admin/assets";
 
 const Dashboard = () => {
-  const { aToken } = useContext(AdminContext)
+  const {
+    aToken,
+    appointments,
+    doctors,
+    getAllAppointments,
+    fetchDoctors,
+  } = useContext(AdminContext);
 
-  // Sample data for appointments
-  const appointments = [
-    { id: 1, doctorName: 'Dr. Richard James', date: '26th July, 2024' },
-    { id: 2, doctorName: 'Dr. Richard James', date: '24th July, 2024' },
-    { id: 3, doctorName: 'Dr. Richard James', date: '26th July, 2024' },
-    { id: 4, doctorName: 'Dr. Richard James', date: '24th July, 2024' },
-    { id: 5, doctorName: 'Dr. Richard James', date: '26th July, 2024' },
-  ]
+  useEffect(() => {
+    if (aToken) {
+      getAllAppointments();
+      fetchDoctors();
+    }
+  }, [aToken]);
+
+  // 🧠 CALCULATIONS
+  const totalAppointments = appointments.length;
+
+  const totalPatients = useMemo(() => {
+    const unique = new Set(
+      appointments.map((apt) => apt.userId)
+    );
+    return unique.size;
+  }, [appointments]);
+
+  const totalRevenue = useMemo(() => {
+    return appointments.reduce((sum, apt) => {
+      if (apt.payment === "paid") {
+        return sum + apt.amount;
+      }
+      return sum;
+    }, 0);
+  }, [appointments]);
+
+  const latestAppointments = [...appointments]
+    .reverse()
+    .slice(0, 5);
+
+  const getStatus = (apt) => {
+    if (apt.cancelled) return "Cancelled";
+    if (apt.isCompleted) return "Completed";
+    if (apt.payment === "paid") return "Paid";
+    return "Pending";
+  };
+
+  const statusColor = (status) => {
+    switch (status) {
+      case "Cancelled":
+        return "bg-red-100 text-red-600";
+      case "Completed":
+        return "bg-green-100 text-green-600";
+      case "Paid":
+        return "bg-indigo-100 text-indigo-600";
+      default:
+        return "bg-yellow-100 text-yellow-600";
+    }
+  };
 
   return (
-    <div className='m-5'>
+    <div className="m-5 space-y-6">
       {aToken && (
         <>
-          {/* Stats Section */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-5 mb-8'>
-            {/* Doctors Card */}
-            <div className='flex items-center gap-4 bg-white p-6 rounded-lg border border-gray-200 cursor-pointer hover:shadow-md transition-all'>
-              <img src={assets.doctor_icon} alt="doctors" className='w-12 h-12' />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+            {/* Doctors */}
+            <div className="flex items-center gap-4 bg-white p-6 rounded-xl border-none hover:shadow-md">
+              <img src={assets.doctor_icon} className="w-12" />
               <div>
-                <p className='text-2xl font-bold text-gray-800'>14</p>
-                <p className='text-gray-600 text-sm'>Doctors</p>
+                <p className="text-2xl font-bold">{doctors.length}</p>
+                <p className="text-sm text-gray-500">Doctors</p>
               </div>
             </div>
 
-            {/* Appointments Card */}
-            <div className='flex items-center gap-4 bg-white p-6 rounded-lg border border-gray-200 cursor-pointer hover:shadow-md transition-all'>
-              <img src={assets.appointments_icon} alt="appointments" className='w-12 h-12' />
+            {/* Appointments */}
+            <div className="flex items-center gap-4 bg-white p-6 rounded-xl border-none hover:shadow-md">
+              <img src={assets.appointments_icon} className="w-12" />
               <div>
-                <p className='text-2xl font-bold text-gray-800'>2</p>
-                <p className='text-gray-600 text-sm'>Appointments</p>
+                <p className="text-2xl font-bold">{totalAppointments}</p>
+                <p className="text-sm text-gray-500">Appointments</p>
               </div>
             </div>
 
-            {/* Patients Card */}
-            <div className='flex items-center gap-4 bg-white p-6 rounded-lg border border-gray-200 cursor-pointer hover:shadow-md transition-all'>
-              <img src={assets.patients_icon} alt="patients" className='w-12 h-12' />
+            {/* Patients */}
+            <div className="flex items-center gap-4 bg-white p-6 rounded-xl border-none hover:shadow-md">
+              <img src={assets.patients_icon} className="w-12" />
               <div>
-                <p className='text-2xl font-bold text-gray-800'>5</p>
-                <p className='text-gray-600 text-sm'>Patients</p>
+                <p className="text-2xl font-bold">{totalPatients}</p>
+                <p className="text-sm text-gray-500">Patients</p>
+              </div>
+            </div>
+
+            {/* Revenue */}
+            <div className="flex items-center gap-4 bg-white p-6 rounded-xl border-none hover:shadow-md">
+              <div className="w-12 h-12 bg-green-100 flex items-center justify-center rounded-full text-green-600 text-xl">
+                $
+              </div>
+              <div>
+                <p className="text-2xl font-bold">${totalRevenue}</p>
+                <p className="text-sm text-gray-500">Revenue</p>
               </div>
             </div>
           </div>
 
-          {/* Latest Appointments Section */}
-          <div className='bg-white rounded-lg border border-gray-200 p-6'>
-            <div className='flex items-center gap-2 mb-6'>
-              <img src={assets.appointment_icon} alt="appointment" className='w-5 h-5' />
-              <p className='font-semibold text-gray-800'>Latest Appointment</p>
+          {/*  LATEST APPOINTMENTS */}
+          <div className="bg-white rounded-xl border-none p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <img src={assets.appointment_icon} className="w-5" />
+              <h2 className="font-semibold text-gray-800">
+                Latest Appointments
+              </h2>
             </div>
 
-            <div className='space-y-4'>
-              {appointments.map((appointment) => (
-                <div key={appointment.id} className='flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-all'>
-                  <div className='flex items-center gap-3 flex-1'>
-                    {/* Doctor Avatar */}
-                    <div className='w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold'>
-                      RJ
-                    </div>
-                    
-                    <div className='flex-1'>
-                      <p className='font-medium text-gray-800'>{appointment.doctorName}</p>
-                      <p className='text-sm text-gray-600'>Booking on {appointment.date}</p>
-                    </div>
-                  </div>
+            <div className="space-y-4">
+              {latestAppointments.map((apt) => {
+                const status = getStatus(apt);
 
-                  {/* Cancel Button */}
-                  <button className='text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all'>
-                    <img src={assets.cancel_icon} alt="cancel" className='w-5 h-5' />
-                  </button>
-                </div>
-              ))}
+                return (
+                  <div
+                    key={apt._id}
+                    className="flex items-center justify-between p-4 border-none rounded-lg hover:shadow-sm"
+                  >
+                    {/* LEFT */}
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={apt.docData.image}
+                        className="w-10 h-10 rounded-full"
+                      />
+
+                      <div>
+                        <p className="font-medium">
+                          {apt.docData.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {apt.slotDate} | {apt.slotTime}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* RIGHT */}
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full ${statusColor(
+                        status
+                      )}`}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

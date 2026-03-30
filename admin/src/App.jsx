@@ -9,11 +9,16 @@ import Dashboard from './pages/Admin/Dashboard';
 import DoctorsList from './pages/Admin/DoctorsList';
 import AddDoctor from './pages/Admin/AddDoctor';
 import AllAppointments from './pages/Admin/AllAppointments';
+import { DoctorContext } from './context/DoctorContext';
+import DoctorDashboard from './pages/Doctors/DoctorDashboard';
+import DoctorProfile from './pages/Doctors/DoctorProfile';
+import DoctorAppointment from './pages/Doctors/DoctorAppointment';
 
 const App = () => {
   const { aToken } = useContext(AdminContext)
+  const {dToken} = useContext(DoctorContext)
 
-  return aToken ? (
+  return aToken || dToken ? (
     <>
     <div className='bg-[#F8F9FD]'>
       <ToastContainer />
@@ -26,6 +31,10 @@ const App = () => {
           <Route path='/all-appointments' element={<AllAppointments/>}/>
           <Route path='/add-doctor' element={<AddDoctor/>}/>
           <Route path='/doctor-list' element={<DoctorsList/>}/>
+          {/* Doctor Routes */}
+          <Route path='/doctor-dashboard' element={<DoctorDashboard/>}/>
+          <Route path='/doctor-profile' element={<DoctorProfile/>}/>
+          <Route path='/doctor-appointments' element={<DoctorAppointment/>}/>
         </Routes>
       </div>
 

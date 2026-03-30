@@ -365,7 +365,7 @@ const makePayment = async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: `Appointment with Dr. ${appointment.docData.name}`, // ✅ FIXED
+              name: `Appointment with Dr. ${appointment.docData.name}`,
             },
             unit_amount: appointment.amount * 100,
           },

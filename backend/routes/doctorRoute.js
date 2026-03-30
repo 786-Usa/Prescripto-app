@@ -2,19 +2,19 @@
 import express from 'express';
 import { 
   doctorLogin, 
-  getAllDoctors,           // ← NEW
+  getAllDoctors,          
   getDoctorProfile, 
   updateDoctorAvailability,
   getDoctorAppointments 
 } from '../controllers/doctorController.js';
-import authDoctor from '../middlewares/authDoctor.js';  // ← UNCOMMENT
+import authDoctor from '../middlewares/authDoctor.js'; 
 
 const doctorRouter = express.Router();
 
-doctorRouter.post('/login', doctorLogin);  // No auth needed
+doctorRouter.post('/login-doctor', doctorLogin);
 doctorRouter.get('/all', getAllDoctors);  // No auth - for frontend/admin
 
-doctorRouter.get('/profile', authDoctor, getDoctorProfile);  // ← Protected
-doctorRouter.get('/appointments', authDoctor, getDoctorAppointments);  // ← Protected
+doctorRouter.get('/profile', authDoctor, getDoctorProfile);
+doctorRouter.get('/appointments', authDoctor, getDoctorAppointments);
 
 export default doctorRouter;
