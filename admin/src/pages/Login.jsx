@@ -22,7 +22,14 @@ const Login = () => {
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
           toast.success("Login successful");
-        } else {
+        }
+        else {
+            console.log(data.message);
+
+            toast.error(data.message);
+          } 
+      }
+      else {
           const { data } = await axios.post(
             `${backendUrl}/api/doctor/login-doctor`,
             { email, password },
@@ -38,7 +45,6 @@ const Login = () => {
             toast.error(data.message);
           }
         }
-      }
     } catch (error) {
       toast.error(
         error.response?.data?.message || "An error occurred during login",

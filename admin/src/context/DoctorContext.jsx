@@ -10,6 +10,7 @@ const DoctorProvider = ({ children }) => {
     localStorage.getItem("dToken") ? localStorage.getItem("dToken") : "",
   );
   const [appointments, setAppointments] = useState([]);
+  const [profile, setProfile] = useState(false);  
 
   const getAppointments = async () => {
     try {
@@ -33,6 +34,54 @@ const DoctorProvider = ({ children }) => {
     }
   };
 
+  const getProfile = async () => {
+
+    try {
+      const { data } = await axios.get(
+        `${backendUrl}/api/doctor/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${dToken}`,
+          },
+        },
+      );
+      if (data.success) {
+        setProfile(data.doctor);
+        console.log(data.doctor);
+      } else {
+        toast.error(data.message);
+      }
+      
+    } catch (error) {
+      console.error("Error fetching doctor profile:", error);
+      toast.error("Error fetching doctor profile");
+    }
+  };
+
+  const updateProfile = async (updatedData) => {
+    try {
+      const { data } = await axios.post(
+        `${backendUrl}/api/doctor/profile/update`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${dToken}`,
+          },
+        }
+      );
+      if (data.success) {
+        setProfile(data.doctor);
+        console.log(data.doctor);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error updating doctor profile:", error);
+      toast.error("Error updating doctor profile");
+    }
+  };
+
+
   const value = {
     dToken,
     setDToken,
@@ -40,6 +89,9 @@ const DoctorProvider = ({ children }) => {
     appointments,
     setAppointments,
     getAppointments,
+    profile,setProfile,
+    getProfile,
+    updateProfile
   };
 
   return (

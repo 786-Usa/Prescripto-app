@@ -5,7 +5,8 @@ import {
   getAllDoctors,          
   getDoctorProfile, 
   updateDoctorAvailability,
-  getDoctorAppointments 
+  getDoctorAppointments, 
+  updateProfile
 } from '../controllers/doctorController.js';
 import authDoctor from '../middlewares/authDoctor.js'; 
 
@@ -15,6 +16,7 @@ doctorRouter.post('/login-doctor', doctorLogin);
 doctorRouter.get('/all', getAllDoctors);  // No auth - for frontend/admin
 
 doctorRouter.get('/profile', authDoctor, getDoctorProfile);
+doctorRouter.post('/profile/update', authDoctor, updateProfile);
 doctorRouter.get('/appointments', authDoctor, getDoctorAppointments);
 
 export default doctorRouter;

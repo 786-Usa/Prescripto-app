@@ -51,7 +51,7 @@ const {dToken} = useContext(DoctorContext)
 
                  <NavLink to={'/doctor-profile'} className={({ isActive }) => `flex items-center gap-3 px-3 py-3.5 cursor-pointer rounded-lg transition-all ${isActive ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}>
                     <img src={assets.add_icon} alt="" className='w-5 h-5' />
-                    <p className='hidden md:block'>Add Doctor</p>
+                    <p className='hidden md:block'>Profile</p>
                 </NavLink>
             </ul>
         }
