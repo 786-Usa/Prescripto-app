@@ -24,7 +24,6 @@ const DoctorProvider = ({ children }) => {
       );
       if (data.success) {
         setAppointments(data.appointments);
-        console.log(data.appointments);
       } else {
         toast.error(data.message);
       }
@@ -47,7 +46,6 @@ const DoctorProvider = ({ children }) => {
       );
       if (data.success) {
         setProfile(data.doctor);
-        console.log(data.doctor);
       } else {
         toast.error(data.message);
       }
@@ -71,7 +69,6 @@ const DoctorProvider = ({ children }) => {
       );
       if (data.success) {
         setProfile(data.doctor);
-        console.log(data.doctor);
       } else {
         toast.error(data.message);
       }

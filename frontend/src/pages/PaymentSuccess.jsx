@@ -2,6 +2,7 @@ import { useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 
 const PaymentSuccess = () => {
   const { backendUrl, token } = useContext(AppContext);
@@ -31,6 +32,8 @@ const PaymentSuccess = () => {
 
       } catch (error) {
         console.log(error);
+        toast.error("Payment verification failed");
+       navigate("/my-appointments"); // 🔥 go back even if error occurs
       }
     };
 

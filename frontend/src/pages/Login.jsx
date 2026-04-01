@@ -40,9 +40,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log('Login form submitted:', formData)
-    // Redirect or show success message
 
     try {
       if(state === 'signup') {
