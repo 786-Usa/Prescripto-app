@@ -14,19 +14,7 @@ connectDB();
 connectionCloudinary();
 //middlewares
 app.use(cors({
-  origin: [
-    "http://localhost:5174",
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://prescripto-app-frontend.vercel.app",
-    "https://prescripto-app-admin-phi.vercel.app",
-    process.env.FRONTEND_URL,
-    process.env.ADMIN_URL
-  ].filter(Boolean),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
+  origin: '*'
 }));
 app.use(express.json());
 //endpoints
