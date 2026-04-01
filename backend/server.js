@@ -14,7 +14,11 @@ connectDB();
 connectionCloudinary();
 //middlewares
 app.use(cors({
-  origin: '*'
+  origin: [
+    "https://prescripto-app-frontend.vercel.app",
+    "https://prescripto-app-admin-phi.vercel.app"
+  ],
+  credentials: true,
 }));
 app.use(express.json());
 //endpoints
