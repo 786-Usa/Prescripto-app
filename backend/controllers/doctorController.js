@@ -160,6 +160,84 @@ const getDoctorAppointments = async (req, res) => {
   }
 };
 
+// ✅ NEW - Complete appointment
+const completeAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    if (!appointmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Appointment ID required",
+      });
+    }
+
+    const appointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { isCompleted: true },
+      { new: true }
+    );
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment marked as completed",
+      appointment,
+    });
+  } catch (error) {
+    console.error("Error completing appointment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error completing appointment",
+    });
+  }
+};
+
+// ✅ NEW - Cancel appointment
+const cancelAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    if (!appointmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Appointment ID required",
+      });
+    }
+
+    const appointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { cancelled: true },
+      { new: true }
+    );
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment cancelled",
+      appointment,
+    });
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error cancelling appointment",
+    });
+  }
+};
+
 export {
   doctorLogin,
   getDoctorProfile,
@@ -167,4 +245,6 @@ export {
   updateDoctorAvailability,
   getDoctorAppointments,
   getAllDoctors,
+  completeAppointment,
+  cancelAppointment,
 };

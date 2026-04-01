@@ -22,7 +22,7 @@ const SpecialityMenu = () => {
                     
                     <Link
                         key={index}
-                        to={`/doctors/${item.speciality.toLowerCase()}`}
+                        to={`/doctors/${encodeURIComponent(item.speciality.toLowerCase())}`}
                         className='flex flex-col items-center gap-2 cursor-pointer hover:scale-110 transition-transform duration-300'
                     >
                         <img

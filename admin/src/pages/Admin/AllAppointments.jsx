@@ -198,21 +198,23 @@ const AllAppointments = () => {
 
                       {/* Action */}
                       <td className="px-4 py-3 text-center">
-                        <button
-                          disabled={
-                            apt.cancelled ||
-                            apt.isCompleted ||
-                            apt.payment === "paid"
-                          }
-                          onClick={() => openCancelModal(apt._id)}
-                          className={`px-2 py-1 rounded ${
-                            apt.cancelled || apt.payment === "paid"
-                              ? "text-gray-400 cursor-not-allowed"
-                              : "text-red-500 hover:bg-red-50"
-                          }`}
-                        >
-                          {loadingId === apt._id ? "..." : "Cancel"}
-                        </button>
+                        {/* 🎯 COMPLETED - Show status only */}
+                        {apt.isCompleted ? (
+                          <span className="text-green-600 text-sm font-medium">✔ Completed</span>
+                        ) : apt.cancelled ? (
+                          <span className="text-red-600 text-sm font-medium">✖ Cancelled</span>
+                        ) : apt.payment === "paid" ? (
+                          <span className="text-indigo-600 text-sm font-medium">💳 Paid</span>
+                        ) : (
+                          /* 🎯 PENDING - Show cancel button */
+                          <button
+                            onClick={() => openCancelModal(apt._id)}
+                            disabled={loadingId === apt._id}
+                            className="px-2 py-1 rounded text-red-500 hover:bg-red-50 transition disabled:opacity-50"
+                          >
+                            {loadingId === apt._id ? "..." : "Cancel"}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

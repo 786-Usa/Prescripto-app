@@ -164,39 +164,42 @@ const MyAppointments = () => {
 
             {/* Actions */}
             <div className="flex flex-col justify-between gap-2 md:w-40">
-              {/* Payment */}
-              {apt.payment === "paid" ? (
-                <button
-                  disabled
-                  className="bg-green-500 text-white py-2 rounded-lg text-sm opacity-70 cursor-not-allowed"
-                >
-                  Paid ✔
-                </button>
-              ) : !apt.cancelled ? (
-                <button
-                  onClick={() => handlePayment(apt._id)}
-                  disabled={loadingId === apt._id}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition disabled:opacity-50"
-                >
-                  {loadingId === apt._id ? "Processing..." : "Pay Now"}
-                </button>
-              ) : null}
-
-              {/* Cancel */}
-              {!apt.cancelled && !apt.isCompleted && (
-                <button
-                  onClick={() => handleCancelAppointment(apt._id)}
-                  className="border border-gray-300 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-              )}
-
-              {/* Completed */}
-              {apt.isCompleted && (
-                <span className="text-green-600 text-sm text-center font-medium">
-                  Completed ✔
+              {/* 🎯 COMPLETED - Hide all buttons */}
+              {apt.isCompleted ? (
+                <span className="text-green-600 text-sm text-center font-medium py-2">
+                  ✔ Completed
                 </span>
+              ) : apt.cancelled ? (
+                <span className="text-red-600 text-sm text-center font-medium py-2">
+                  ✖ Cancelled
+                </span>
+              ) : apt.payment === "paid" ? (
+                /* 🎯 PAID - Only show paid status, hide cancel button */
+                <>
+                  <button
+                    disabled
+                    className="bg-green-500 text-white py-2 rounded-lg text-sm opacity-70 cursor-not-allowed"
+                  >
+                    ✔ Paid
+                  </button>
+                </>
+              ) : (
+                /* 🎯 PENDING - Show pay and cancel buttons */
+                <>
+                  <button
+                    onClick={() => handlePayment(apt._id)}
+                    disabled={loadingId === apt._id}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition disabled:opacity-50"
+                  >
+                    {loadingId === apt._id ? "Processing..." : "Pay Now"}
+                  </button>
+                  <button
+                    onClick={() => handleCancelAppointment(apt._id)}
+                    className="border border-gray-300 text-gray-600 py-2 rounded-lg text-sm hover:bg-red-50 transition"
+                  >
+                    Cancel
+                  </button>
+                </>
               )}
             </div>
           </div>

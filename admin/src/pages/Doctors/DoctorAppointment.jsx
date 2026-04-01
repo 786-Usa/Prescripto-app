@@ -4,7 +4,7 @@ import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets_admin/assets";
 
 const DoctorAppointment = () => {
-  const { dToken, appointments, getAppointments } = useContext(DoctorContext);
+  const { dToken, appointments, getAppointments, completeAppointment, cancelAppointment } = useContext(DoctorContext);
   const { calculateAge } = useContext(AppContext);
 
   const [loading, setLoading] = useState(false);
@@ -117,25 +117,39 @@ const DoctorAppointment = () => {
 
                   {/* ACTIONS */}
                   <div className="flex items-center justify-center gap-3">
-                    {/* COMPLETE */}
-                    <button
-                      disabled={apt.cancelled || apt.isCompleted}
-                      className={`p-2 rounded-full ${
-                        apt.isCompleted ? "bg-green-100" : "hover:bg-green-50"
-                      }`}
-                    >
-                      <img src={assets.tick_icon} className="w-5 h-5" />
-                    </button>
+                    {/* 🎯 COMPLETED - Hide all buttons */}
+                    {apt.isCompleted ? (
+                      <div className="text-center">
+                        <span className="text-green-600 text-sm font-medium">✔ Completed</span>
+                      </div>
+                    ) : apt.cancelled ? (
+                      <div className="text-center">
+                        <span className="text-red-600 text-sm font-medium">✖ Cancelled</span>
+                      </div>
+                    ) : (
+                      /* 🎯 PENDING/PAID - Show complete and cancel buttons */
+                      <>
+                        {/* COMPLETE */}
+                        <button
+                          onClick={() => completeAppointment(apt._id)}
+                          className="p-2 rounded-full hover:bg-green-50 cursor-pointer transition"
+                          title="Mark as completed"
+                        >
+                          <img src={assets.tick_icon} className="w-5 h-5" />
+                        </button>
 
-                    {/* CANCEL */}
-                    <button
-                      disabled={apt.cancelled || apt.isCompleted}
-                      className={`p-2 rounded-full ${
-                        apt.cancelled ? "bg-red-100" : "hover:bg-red-50"
-                      }`}
-                    >
-                      <img src={assets.cancel_icon} className="w-5 h-5" />
-                    </button>
+                        {/* CANCEL - Hidden if paid */}
+                        {apt.payment !== "paid" && (
+                          <button
+                            onClick={() => cancelAppointment(apt._id)}
+                            className="p-2 rounded-full hover:bg-red-50 cursor-pointer transition"
+                            title="Cancel appointment"
+                          >
+                            <img src={assets.cancel_icon} className="w-5 h-5" />
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               );

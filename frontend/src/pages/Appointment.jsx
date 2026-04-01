@@ -24,8 +24,10 @@ const Appointment = () => {
 
       const formatted = date.toISOString().split('T')[0] // YYYY-MM-DD
       const label = date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })
+      const weekday = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()
+      const dayNum = date.getDate()
 
-      days.push({ label, value: formatted })
+      days.push({ label, value: formatted, weekday, dayNum })
     }
     return days
   }
@@ -81,88 +83,158 @@ const Appointment = () => {
 
   if (!docInfo) return <div className="text-center py-20">Loading...</div>
 
+  // Get related doctors (same speciality)
+  const relatedDoctors = doctors.filter(d => d.speciality === docInfo.speciality && d._id !== docId).slice(0, 5)
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-10 px-4">
+    <div className="min-h-screen bg-white py-8 px-4 md:px-8">
+      <div className="max-w-4xl mx-auto">
 
-      {/* Doctor Card */}
-      <div className="max-w-5xl mx-auto bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col md:flex-row gap-6">
-        <img src={docInfo.image} className="w-40 h-40 rounded-xl object-cover" />
-
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">{docInfo.name}</h1>
-          <p className="text-indigo-600 font-medium">{docInfo.speciality}</p>
-
-          <div className="mt-2 text-sm text-gray-500">
-            {docInfo.degree} • {docInfo.experience}
+        {/* DOCTOR INFO SECTION */}
+        <div className="flex flex-col md:flex-row gap-8 mb-10">
+          {/* Doctor Image */}
+          <div className="flex-shrink-0">
+            <img src={docInfo.image} alt={docInfo.name} className="w-48 h-48 rounded-2xl object-cover bg-blue-100" />
           </div>
 
-          <p className="mt-3 text-gray-600 text-sm">{docInfo.about}</p>
+          {/* Doctor Details */}
+          <div className="flex-1">
+            <div className="flex items-start gap-2 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900">{docInfo.name}</h1>
+              <span className="text-blue-500 text-2xl">✓</span>
+            </div>
 
-          <div className="mt-4 flex gap-6 text-sm">
-            <span>💰 ${docInfo.fees}</span>
-            <span>📍 {docInfo.address.line1}</span>
+            <p className="text-gray-500 text-sm mb-4">
+              {docInfo.degree} - {docInfo.speciality}  ({docInfo.experience} years)
+            </p>
+
+            {/* About Section */}
+            <div className="mb-4">
+              <h3 className="text-gray-700 font-semibold text-sm mb-2 flex items-center gap-2">
+                About <span className="text-gray-400">ℹ️</span>
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {docInfo.about}
+              </p>
+            </div>
+
+            {/* Appointment Fee */}
+            <p className="text-gray-800 font-medium">
+              Appointment fee: <span className="text-gray-600">${docInfo.fees}</span>
+            </p>
+
+            {/* 🔴 Availability Status */}
+            {!docInfo.available && (
+              <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded-lg">
+                <p className="text-red-700 text-sm font-medium">⚠️ Doctor is not available</p>
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Booking Section */}
-      <div className="max-w-5xl mx-auto mt-10 bg-white rounded-2xl shadow-lg p-6">
+        {/* BOOKING SLOTS SECTION */}
+        <div className="bg-white">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Booking slots</h2>
 
-        <h2 className="text-xl font-semibold mb-4">Select Date</h2>
-
-        {/* Dates */}
-        <div className="flex gap-3 overflow-x-auto pb-3">
-          {days.map(day => (
-            <button
-              key={day.value}
-              onClick={() => {
-                setSelectedDate(day.value)
-                setSelectedTime('')
-              }}
-              className={`min-w-[80px] py-3 rounded-xl border transition ${
-                selectedDate === day.value
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-gray-100 hover:bg-indigo-100'
-              }`}
-            >
-              {day.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Time Slots */}
-        <h2 className="text-xl font-semibold mt-6 mb-4">Select Time</h2>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {times.map(time => {
-            const booked = isSlotBooked(selectedDate, time)
-
-            return (
+          {/* Date Selection */}
+          <div className="flex gap-3 overflow-x-auto pb-4 mb-8">
+            {days.map(day => (
               <button
-                key={time}
-                disabled={booked}
-                onClick={() => setSelectedTime(time)}
-                className={`py-2 rounded-lg border text-sm transition ${
-                  booked
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : selectedTime === time
-                    ? 'bg-indigo-600 text-white shadow'
-                    : 'bg-gray-100 hover:bg-indigo-100'
+                key={day.value}
+                onClick={() => {
+                  setSelectedDate(day.value)
+                  setSelectedTime('')
+                }}
+                disabled={!docInfo.available}
+                className={`flex flex-col items-center justify-center min-w-[70px] py-3 px-2 rounded-lg border-2 transition ${
+                  !docInfo.available
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300'
+                    : selectedDate === day.value
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300'
                 }`}
               >
-                {time}
+                <span className="text-xs font-medium">{day.weekday}</span>
+                <span className="text-lg font-bold">{day.dayNum}</span>
               </button>
-            )
-          })}
+            ))}
+          </div>
+
+          {/* Time Selection */}
+          <h3 className="text-base font-medium text-gray-900 mb-4">Morning</h3>
+          <div className="flex gap-3 overflow-x-auto pb-6 flex-wrap">
+            {times.map(time => {
+              const booked = isSlotBooked(selectedDate, time)
+
+              return (
+                <button
+                  key={time}
+                  disabled={booked || !docInfo.available}
+                  onClick={() => setSelectedTime(time)}
+                  className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition ${
+                    !docInfo.available
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300'
+                      : booked
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300'
+                      : selectedTime === time
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                  }`}
+                >
+                  {time}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Book Button */}
+          <button
+            onClick={bookAppointment}
+            disabled={!docInfo.available}
+            className={`w-full md:w-auto px-12 py-3 rounded-full text-white font-semibold transition ${
+              !docInfo.available
+                ? 'bg-gray-400 cursor-not-allowed opacity-60'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            Book an appointment
+          </button>
         </div>
 
-        {/* Button */}
-        <button
-          onClick={bookAppointment}
-          className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-lg font-medium transition"
-        >
-          Book Appointment 🚀
-        </button>
+        {/* RELATED DOCTORS SECTION */}
+        {relatedDoctors.length > 0 && (
+          <div className="mt-16 pt-8 border-t border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Related Doctors</h2>
+            <p className="text-gray-600 text-sm mb-6">
+              Simply browse through our extensive list of trusted doctors.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+              {relatedDoctors.map(doc => (
+                <Link
+                  to={`/appointments/${doc._id}`}
+                  key={doc._id}
+                  className="text-center group cursor-pointer"
+                >
+                  <div className="bg-indigo-50 rounded-lg overflow-hidden mb-3">
+                    <img
+                      src={doc.image}
+                      alt={doc.name}
+                      className="w-full h-32 object-cover group-hover:scale-105 transition"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    <p className="text-xs text-green-600 font-medium">Available</p>
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-900">{doc.name}</h3>
+                  <p className="text-xs text-gray-600">{doc.speciality}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )

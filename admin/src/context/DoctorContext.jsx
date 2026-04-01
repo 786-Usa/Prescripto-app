@@ -81,6 +81,53 @@ const DoctorProvider = ({ children }) => {
     }
   };
 
+  // ✅ NEW - Complete appointment
+  const completeAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        `${backendUrl}/api/doctor/appointment/complete`,
+        { appointmentId },
+        {
+          headers: {
+            Authorization: `Bearer ${dToken}`,
+          },
+        }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        await getAppointments(); // Refresh appointments
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error completing appointment:", error);
+      toast.error("Error completing appointment");
+    }
+  };
+
+  // ✅ NEW - Cancel appointment
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        `${backendUrl}/api/doctor/appointment/cancel`,
+        { appointmentId },
+        {
+          headers: {
+            Authorization: `Bearer ${dToken}`,
+          },
+        }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        await getAppointments(); // Refresh appointments
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+      toast.error("Error cancelling appointment");
+    }
+  };
 
   const value = {
     dToken,
@@ -91,7 +138,9 @@ const DoctorProvider = ({ children }) => {
     getAppointments,
     profile,setProfile,
     getProfile,
-    updateProfile
+    updateProfile,
+    completeAppointment,
+    cancelAppointment
   };
 
   return (

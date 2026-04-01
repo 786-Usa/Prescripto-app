@@ -50,7 +50,7 @@ const Footer = () => {
                         <h3 className=" font-semibold mb-4 uppercase text-sm">Get In Touch</h3>
                         <ul className="space-y-3">
                             <li className="text-gray-700">+1-212-456-7890</li>
-                            <li className="text-gray-700">greathtackcde@gmail.com</li>
+                            <li className="text-gray-700">prescripto@gmail.com</li>
                         </ul>
                     </div>
                 </div>
@@ -58,7 +58,7 @@ const Footer = () => {
                 {/* Bottom Section - Copyright */}
                 <div className="border-t border-gray-700 pt-8">
                     <p className="text-center text-sm text-gray-400">
-                        Copyright © 2024 GreatStack - All Right Reserved.
+                        Copyright © {new Date().getFullYear()} Prescripto - All Right Reserved.
                     </p>
                 </div>
             </div>
