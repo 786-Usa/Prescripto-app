@@ -9,7 +9,7 @@ const Privacy = () => {
         <div className="mb-12">
           <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-4'>Privacy Policy</h1>
           <p className='text-gray-600 text-base leading-relaxed'>
-            Last updated: <span className='font-medium'>April 1, 2026</span>
+            Last updated: <span className='font-medium'>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </p>
         </div>
 
