@@ -28,6 +28,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 }));
+app.options('*', cors());
 app.use(express.json());
 //endpoints
 app.use('/api/admin', adminRouter);
