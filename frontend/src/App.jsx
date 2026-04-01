@@ -14,6 +14,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Signup from "./pages/Signup";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import Privacy from "./pages/Privacy";
 function App() {
   return (
     <>
@@ -28,6 +29,7 @@ function App() {
           <Route path="/doctors/:speciality" element={<Doctors />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />

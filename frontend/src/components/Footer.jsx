@@ -1,5 +1,6 @@
 import React from 'react'
 import { assets } from '../assets/assets_frontend/assets.js'
+import { Link } from 'react-router-dom'
 
 const Footer = () => {
     return (
@@ -10,7 +11,7 @@ const Footer = () => {
                     {/* Left Section - Logo & Description */}
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2 mb-4">
-                            <img src={assets.logo} alt="Prescripto" className="h-8" />
+                            <Link to="/"><img src={assets.logo} alt="Prescripto" className="h-8" /></Link>
                             <span className="text-white font-bold text-xl">Prescripto</span>
                         </div>
                         <p className="text-sm  leading-relaxed">
@@ -22,25 +23,25 @@ const Footer = () => {
                     <div>
                         <h3 className=" font-semibold mb-4 uppercase text-sm">Company</h3>
                         <ul className="space-y-3">
-                            <li>
-                                <a href="#" className="text-gray-400 hover:text-yellow-500 transition">
+                            <li className="text-gray-400 hover:text-yellow-500 transition">
+                                <Link to="/" className="text-gray-400 hover:text-yellow-500 transition">
                                     Home
-                                </a>
+                                </Link>
                             </li>
-                            <li>
-                                <a href="#" className="text-gray-400 hover:text-yellow-500 transition">
+                            <li className="text-gray-400 hover:text-yellow-500 transition">
+                                <Link to="/about" className="text-gray-400 hover:text-yellow-500 transition">
                                     About us
-                                </a>
+                                </Link>
                             </li>
-                            <li>
-                                <a href="#" className="text-gray-400 hover:text-yellow-500 transition">
+                            <li className="text-gray-400 hover:text-yellow-500 transition">
+                                <Link to="/contact" className="text-gray-400 hover:text-yellow-500 transition">
                                     Contact us
-                                </a>
+                                </Link>
                             </li>
-                            <li>
-                                <a href="#" className="text-gray-400 hover:text-yellow-500 transition">
+                            <li className="text-gray-400 hover:text-yellow-500 transition">
+                                <Link to="/privacy" className="text-gray-400 hover:text-yellow-500 transition">
                                     Privacy policy
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
