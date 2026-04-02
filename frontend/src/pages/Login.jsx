@@ -43,12 +43,12 @@ const Login = () => {
 
     try {
       if(state === 'signup') {
-      const { data } = await axios.post(`${backendUrl}/api/user/signup`, formData);
+      const { data } = await axios.post(`${backendUrl}/api/user/register`, formData);
       if (data.success) {
         localStorage.setItem('token', data.token);
         setToken(data.token);
         toast.success(data.message);
-        navigate('/login');
+        navigate('/');
       } else {
         toast.error(data.message);
       }

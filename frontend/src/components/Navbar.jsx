@@ -67,6 +67,15 @@ const Navbar = () => {
                         <NavLink className="px-4 py-2 rounded inline-block" onClick={()=>setShowMenu(false)} to="/doctors">ALL DOCTORS</NavLink>
                         <NavLink className="px-4 py-2 rounded inline-block" onClick={()=>setShowMenu(false)} to="/about">ABOUT</NavLink>
                         <NavLink className="px-4 py-2 rounded inline-block" onClick={()=>setShowMenu(false)} to="/contact">CONTACT</NavLink>
+                        
+                        {token && userData && (
+                            <>
+                                <hr className='w-full border-gray-300 my-2' />
+                                <p onClick={()=>{navigate('/my-profile'); setShowMenu(false)}} className='px-4 py-2 rounded inline-block cursor-pointer hover:bg-gray-100'>My Profile</p>
+                                <p onClick={()=>{navigate('/my-appointments'); setShowMenu(false)}} className='px-4 py-2 rounded inline-block cursor-pointer hover:bg-gray-100'>My Appointments</p>
+                                <p onClick={()=>{handleLogout(); setShowMenu(false)}} className='px-4 py-2 rounded inline-block cursor-pointer hover:bg-gray-100'>Logout</p>
+                            </>
+                        )}
                     </ul>
                 </div>
 
