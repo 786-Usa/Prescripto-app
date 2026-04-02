@@ -13,6 +13,7 @@ import { DoctorContext } from './context/DoctorContext';
 import DoctorDashboard from './pages/Doctors/DoctorDashboard';
 import DoctorProfile from './pages/Doctors/DoctorProfile';
 import DoctorAppointment from './pages/Doctors/DoctorAppointment';
+import Home from './pages/Home';
 
 const App = () => {
   const { aToken } = useContext(AdminContext)
@@ -26,7 +27,7 @@ const App = () => {
       <div className='flex items-start'>
         <Sidebar/>
         <Routes>
-          <Route path='/' element={<></>}/>
+          <Route path='/' element={<Home/>}/>
           <Route path='/admin-dashboard' element={<Dashboard/>}/>
           <Route path='/all-appointments' element={<AllAppointments/>}/>
           <Route path='/add-doctor' element={<AddDoctor/>}/>
